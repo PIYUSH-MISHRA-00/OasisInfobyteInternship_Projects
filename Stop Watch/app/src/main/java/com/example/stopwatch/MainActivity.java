@@ -42,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
         //passing event
         btnget.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v){
-                Intent a = new Intent(MainActivity.this, StopWatchAcitivity.class);
+            public void onClick(View v) {
+                Intent a = new Intent(MainActivity.this, StopWatchActivity.class); // Correct class name
                 a.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(a);
             }
