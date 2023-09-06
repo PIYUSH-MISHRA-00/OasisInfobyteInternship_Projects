@@ -1,4 +1,4 @@
-package com.example.stopwatch;
+package com.example.stopwatch; // Adjust the package name as needed
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Typeface;
@@ -17,6 +17,7 @@ public class StopWatchActivity extends AppCompatActivity {
     Animation roundingalone;
     Chronometer timerHere;
     boolean isPaused = false; // To track whether the timer is paused or not
+    long pausedTime = 0; // To store elapsed time when paused
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,15 +56,19 @@ public class StopWatchActivity extends AppCompatActivity {
                     btnstop.animate().alpha(1).translationY(-80).setDuration(300).start();
                     btnstart.animate().alpha(0).setDuration(300).start();
                     // Start Time
-                    timerHere.setBase(SystemClock.elapsedRealtime());
-                    timerHere.start();
-                } else {
-                    // Resume the timer if it's paused
-                    long pausedTime = SystemClock.elapsedRealtime() - timerHere.getBase();
                     timerHere.setBase(SystemClock.elapsedRealtime() - pausedTime);
                     timerHere.start();
+                } else {
+                    // Resume the timer from where it was paused
+                    long currentTime = SystemClock.elapsedRealtime();
+                    timerHere.setBase(currentTime - pausedTime);
+                    timerHere.start();
+                    icanchor.startAnimation(roundingalone); // Start the animation again
                 }
                 isPaused = false; // Timer is no longer paused
+
+                // Hide the Start button
+                btnstart.animate().alpha(0).setDuration(300).start();
             }
         });
 
@@ -73,8 +78,26 @@ public class StopWatchActivity extends AppCompatActivity {
                 if (!isPaused) {
                     // Pause the timer if it's running
                     timerHere.stop();
+                    icanchor.clearAnimation(); // Stop the animation
+                    pausedTime = SystemClock.elapsedRealtime() - timerHere.getBase(); // Store elapsed time
                     isPaused = true; // Timer is now paused
+
+                    // Make the Start button visible
+                    btnstart.animate().alpha(1).setDuration(300).start();
                 }
+            }
+        });
+
+        btnstop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Stop the timer
+                timerHere.stop();
+                icanchor.clearAnimation(); // Stop the animation
+                btnstop.animate().alpha(0).translationY(0).setDuration(300).start();
+                btnstart.animate().alpha(1).setDuration(300).start();
+                isPaused = false; // Reset the pause state
+                pausedTime = 0; // Reset the stored elapsed time
             }
         });
 
@@ -84,11 +107,11 @@ public class StopWatchActivity extends AppCompatActivity {
                 // Reset the timer
                 timerHere.stop();
                 timerHere.setBase(SystemClock.elapsedRealtime());
-                isPaused = false; // Reset the pause state
-                // Reset UI elements
-                icanchor.clearAnimation();
+                icanchor.clearAnimation(); // Stop the animation
                 btnstop.animate().alpha(0).translationY(0).setDuration(300).start();
                 btnstart.animate().alpha(1).setDuration(300).start();
+                isPaused = false; // Reset the pause state
+                pausedTime = 0; // Reset the stored elapsed time
             }
         });
     }
