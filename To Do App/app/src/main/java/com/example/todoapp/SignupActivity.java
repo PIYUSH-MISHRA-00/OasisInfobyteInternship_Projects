@@ -1,11 +1,11 @@
 package com.example.todoapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.todoapp.databinding.ActivitySignupBinding;
 
@@ -29,26 +29,26 @@ public class SignupActivity extends AppCompatActivity {
                 String password = binding.signupPassword.getText().toString();
                 String confirmPassword = binding.signupConfirm.getText().toString();
 
-                if (email.equals("") || password.equals("") || confirmPassword.equals(""))
-                    Toast.makeText(SignupActivity.this, "All fields are mandotory", Toast.LENGTH_SHORT).show();
-                else{
+                if (email.equals("") || password.equals("") || confirmPassword.equals("")) {
+                    Toast.makeText(SignupActivity.this, "All fields are mandatory", Toast.LENGTH_SHORT).show();
+                } else {
                     if (password.equals(confirmPassword)) {
                         Boolean checkUserEmail = databaseHelper.checkEmail(email);
-                        if (checkUserEmail == false) {
+                        if (!checkUserEmail) {
                             Boolean insert = databaseHelper.insertData(email, password);
 
-                            if (checkUserEmail == false) {
+                            if (insert) {
                                 Toast.makeText(SignupActivity.this, "Signup Successful", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(SignupActivity.this, "Signup Failed", Toast.LENGTH_SHORT).show();
                             }
-                            } else {
-                                Toast.makeText(SignupActivity.this, "User already exists.. Please login", Toast.LENGTH_SHORT).show();
-                            }
+                        } else {
+                            Toast.makeText(SignupActivity.this, "User already exists. Please login", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        Toast.makeText(SignupActivity.this, "Invalid Password", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SignupActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
