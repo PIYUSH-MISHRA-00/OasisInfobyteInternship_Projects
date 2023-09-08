@@ -1,7 +1,5 @@
 package com.example.unitconvertorapplication;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,11 +10,14 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     EditText input;
-    Spinner unit;
-    TextView km, m, cm, mm, microm, nm, mile, yard, foot, inch;
+    Spinner unitCategorySpinner;
+    Spinner conversionSpinner;
+    TextView resultTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,101 +25,123 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         input = findViewById(R.id.input);
-        unit = findViewById(R.id.unit);
-        km = findViewById(R.id.km);
-        m = findViewById(R.id.m);
-        cm = findViewById(R.id.cm);
-        mm = findViewById(R.id.mm);
-        microm = findViewById(R.id.microm);
-        nm = findViewById(R.id.nm);
-        mile = findViewById(R.id.mile);
-        yard = findViewById(R.id.yard);
-        foot = findViewById(R.id.foot);
-        inch = findViewById(R.id.inch);
+        unitCategorySpinner = findViewById(R.id.unitCategorySpinner);
+        conversionSpinner = findViewById(R.id.conversionSpinner);
+        resultTextView = findViewById(R.id.resultTextView);
 
-        String[] arr = {"km", "m", "cm", "mm", "microm", "nm", "mile", "yard", "foot", "inch"};
-        unit.setAdapter(new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, arr));
+        // Populate the unit category spinner with data from string-array
+        ArrayAdapter<CharSequence> unitCategoryAdapter = ArrayAdapter.createFromResource(this,
+                R.array.unit_categories, android.R.layout.simple_spinner_item);
+        unitCategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        unitCategorySpinner.setAdapter(unitCategoryAdapter);
 
-        unit.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        // Set a listener for the unit category spinner
+        unitCategorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                update();
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // Load the corresponding conversion spinner based on the selected category
+                loadConversionSpinner(position);
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do nothing
             }
         });
 
+        // Set a listener for the conversion spinner
+        conversionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // Update the result when a conversion is selected
+                updateResult();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do nothing
+            }
+        });
+
+        // Set a listener for the input field
         input.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                // Do nothing
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                // Update the result whenever the input text changes
+                updateResult();
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-                update();
+                // Do nothing
             }
         });
     }
 
-    private void update() {
-        if (!input.getText().toString().equals("") && !unit.getSelectedItem().toString().equals("")) {
-            double in = Double.parseDouble(input.getText().toString());
-            switch (unit.getSelectedItem().toString()) {
-                case "km":
-                    setKm(in);
-                    break;
-                case "m":
-                    setKm(in/1000);
-                    break;
-                case "cm":
-                    setKm(in/100000);
-                    break;
-                case "mm":
-                    setKm(in/1000000);
-                    break;
-                case "microm":
-                    setKm(in/1000000000);
-                    break;
-                case "nm":
-                    double d = 1000000 * 1000000;
-                    setKm(in/d);
-                    break;
-                case "mile":
-                    setKm(in*1.609);
-                    break;
-                case "yard":
-                    setKm(in/1094);
-                    break;
-                case "foot":
-                    setKm(in/3281);
-                    break;
-                case "inch":
-                    setKm(in/39370);
-                    break;
-            }
+    // Load the conversion spinner based on the selected category
+    private void loadConversionSpinner(int categoryPosition) {
+        int conversionArrayResourceId = 0;
+
+        // Determine which conversion string array to load based on the selected category
+        switch (categoryPosition) {
+            case 0:
+                conversionArrayResourceId = R.array.length_conversions;
+                break;
+            case 1:
+                conversionArrayResourceId = R.array.time_conversions;
+                break;
+            // Add more cases for other categories if needed
+        }
+
+        if (conversionArrayResourceId != 0) {
+            // Populate the conversion spinner with data from the selected conversion string array
+            ArrayAdapter<CharSequence> conversionAdapter = ArrayAdapter.createFromResource(this,
+                    conversionArrayResourceId, android.R.layout.simple_spinner_item);
+            conversionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            conversionSpinner.setAdapter(conversionAdapter);
         }
     }
 
-    private void setKm(double km_in) {
-        km.setText(String.valueOf(km_in));
-        m.setText(String.valueOf(km_in*1000));
-        cm.setText(String.valueOf(km_in*100000));
-        mm.setText(String.valueOf(km_in*1000000));
-        microm.setText(String.valueOf(km_in*1000000000));
-        nm.setText(String.valueOf(km_in*1000000 * 1000000));
-        mile.setText(String.valueOf(km_in/1.609));
-        yard.setText(String.valueOf(km_in*1094));
-        foot.setText(String.valueOf(km_in*3281));
-        inch.setText(String.valueOf(km_in*39370));
-    }
+    // Update the result based on the selected conversion and input value
+    private void updateResult() {
+        // Get the selected conversion and input value
+        String selectedConversion = (String) conversionSpinner.getSelectedItem();
+        String inputValueStr = input.getText().toString();
 
+        if (!inputValueStr.isEmpty()) {
+            double inputValue = Double.parseDouble(inputValueStr);
+            double result = 0.0; // Initialize the result
+
+            // Perform the appropriate conversion based on the selected conversion
+            if (selectedConversion != null) {
+                switch (selectedConversion) {
+                    // Perform conversions based on selected conversion
+                    case "Meters to Feet":
+                        result = inputValue * 3.28084;
+                        break;
+                    case "Feet to Meters":
+                        result = inputValue * 0.3048;
+                        break;
+                    case "Seconds to Minutes":
+                        result = inputValue / 60;
+                        break;
+                    case "Minutes to Seconds":
+                        result = inputValue * 60;
+                        break;
+                    // Add more cases for other conversions as needed
+                }
+            }
+
+            // Update the result TextView with the calculated result
+            resultTextView.setText(String.valueOf(result));
+        } else {
+            // Clear the result TextView when the input is empty
+            resultTextView.setText("");
+        }
+    }
 }

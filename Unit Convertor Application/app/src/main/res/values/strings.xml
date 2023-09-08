@@ -7,7 +7,6 @@
     <string-array name="unit_categories">
         <item>Length</item>
         <item>Time</item>
-        <item>Distance</item>
         <!-- Add more categories as needed -->
     </string-array>
     <!-- Define string arrays for conversions within each category -->
